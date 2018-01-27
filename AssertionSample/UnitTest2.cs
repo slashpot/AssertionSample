@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 namespace AssertionSample
@@ -14,11 +15,13 @@ namespace AssertionSample
             Assert.AreEqual(2.5m, actual);
         }
 
+        // use fluent assertion
         [TestMethod]
-        public void Divide_Zero()
+        public void Divide_Joey()
         {
             var calculator = new Calculator();
-            var actual = calculator.Divide(5, 0);
+            Action action = () => { calculator.Divide(5, 91); };
+            action.ShouldThrow<YouShallNotPassException>().And.PropDecimal.ShouldBeEquivalentTo(91);
 
             //how to assert expected exception?
         }
@@ -28,9 +31,9 @@ namespace AssertionSample
     {
         public decimal Divide(decimal first, decimal second)
         {
-            if (second == 0)
+            if (second == 0 || second == 91)
             {
-                throw new YouShallNotPassException();
+                throw new YouShallNotPassException() { PropDecimal = second };
             }
             return first / second;
         }
@@ -38,5 +41,6 @@ namespace AssertionSample
 
     public class YouShallNotPassException : Exception
     {
+        public decimal PropDecimal { get; set; }
     }
 }
